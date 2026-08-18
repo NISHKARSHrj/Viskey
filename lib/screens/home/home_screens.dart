@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../apps/app_selection_screen.dart';
 
 class HomeScreens extends StatelessWidget {
   const HomeScreens({super.key});
@@ -80,7 +81,14 @@ class HomeScreens extends StatelessWidget {
                 width: double.infinity,
                 height: 52,
                 child: FilledButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AppSelectionScreen(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.add_rounded, size: 21),
                   label: const Text('Protect an App'),
                 ),
@@ -188,10 +196,7 @@ class _HeaderIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _HeaderIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _HeaderIconButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -206,18 +211,11 @@ class _HeaderIconButton extends StatelessWidget {
           height: 42,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.border,
-            ),
+            border: Border.all(color: AppColors.border),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: AppColors.textprimary,
-          ),
+          child: Icon(icon, size: 20, color: AppColors.textprimary),
         ),
       ),
     );
   }
 }
-
