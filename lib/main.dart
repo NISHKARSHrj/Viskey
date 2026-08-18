@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-
+import 'screens/home/home_screens.dart';
 void main() {
   runApp(const ViskeyApp());
 }
@@ -14,17 +14,7 @@ class ViskeyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'VISKEY',
       theme: AppTheme.dark,
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'VISKEY',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      home: const HomeScreens(),
     );
   }
 }
