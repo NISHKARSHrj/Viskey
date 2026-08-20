@@ -1,4 +1,4 @@
-package com.example.viskey
+package com.klyro.viskey
 
 import android.content.Intent
 import android.content.pm.PackageManager

@@ -12,7 +12,7 @@ class ViskeyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'VISKEY',
+      title: 'hellp',
       theme: AppTheme.dark,
       home: const HomeScreens(),
     );
