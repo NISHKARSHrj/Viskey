@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme/app_text_styles.dart';
 import '../../models/protected_app.dart';
@@ -27,6 +28,11 @@ class VisualKeyConfirmScreen extends StatefulWidget {
 
 class _VisualKeyConfirmScreenState
     extends State<VisualKeyConfirmScreen> {
+
+  // Flutter ↔ Android native communication
+  static const MethodChannel _nativeChannel =
+      MethodChannel('viskey/native_apps');
+
   bool _saving = false;
 
   final VisualKeyService _visualKeyService =
@@ -34,6 +40,8 @@ class _VisualKeyConfirmScreenState
 
   final StorageService _storageService =
       StorageService();
+
+  // USE PHOTO
 
   Future<void> _usePhoto() async {
     if (_saving) return;
@@ -43,7 +51,8 @@ class _VisualKeyConfirmScreenState
     });
 
     try {
-      // 1. Save image to VISKEY private storage.
+      // 1. Save visual key image
+      //    inside VISKEY private storage.
       final savedPath =
           await _visualKeyService.saveVisualKey(
         sourcePath: widget.imagePath,
@@ -57,20 +66,50 @@ class _VisualKeyConfirmScreenState
         visualKeyPath: savedPath,
       );
 
-      // 3. Save protected app metadata.
+      // 3. Save protected app metadata
+      //    for Flutter/HomeScreen.
       await _storageService.saveProtectedApp(
         protectedApp,
       );
 
+      // 4. Tell Android native side that
+      //    this package is protected.
+      await _nativeChannel.invokeMethod(
+        'saveProtectedPackage',
+        {
+          'packageName': widget.packageName,
+        },
+      );
+
+      debugPrint(
+        'VISKEY: Native protection saved for '
+        '${widget.packageName}',
+      );
+
       if (!mounted) return;
 
-      // 4. Show success screen.
+      // 5. Show success screen.
       await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => VisualKeyCreatedScreen(
             appName: widget.appName,
             visualKeyPath: savedPath,
+          ),
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _saving = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Android protection setup failed: '
+            '${e.message ?? e.code}',
           ),
         ),
       );
@@ -90,6 +129,8 @@ class _VisualKeyConfirmScreenState
       );
     }
   }
+
+  // BUILD
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +181,8 @@ class _VisualKeyConfirmScreenState
 
               const SizedBox(height: 24),
 
+              // PHOTO PREVIEW
+
               Expanded(
                 child: ClipRRect(
                   borderRadius:
@@ -153,6 +196,8 @@ class _VisualKeyConfirmScreenState
               ),
 
               const SizedBox(height: 18),
+
+              // ACTIONS
 
               Row(
                 children: [

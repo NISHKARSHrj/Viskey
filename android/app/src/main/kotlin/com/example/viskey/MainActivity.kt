@@ -29,6 +29,9 @@ class MainActivity : FlutterActivity() {
 
             when (call.method) {
 
+
+                // GET INSTALLED APPS
+
                 "getInstalledApps" -> {
                     try {
                         result.success(
@@ -43,6 +46,42 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
+                // SAVE PROTECTED PACKAGE
+
+                "saveProtectedPackage" -> {
+
+                    val packageName =
+                        call.argument<String>(
+                            "packageName"
+                        )
+
+                    if (packageName.isNullOrBlank()) {
+                        result.error(
+                            "INVALID_PACKAGE",
+                            "Package name is missing",
+                            null
+                        )
+                        return@setMethodCallHandler
+                    }
+
+                    try {
+                        ViskeyProtectedApps
+                            .saveProtectedPackage(
+                                applicationContext,
+                                packageName
+                            )
+
+                        result.success(true)
+
+                    } catch (e: Exception) {
+                        result.error(
+                            "SAVE_PROTECTED_ERROR",
+                            e.message,
+                            null
+                        )
+                    }
+                }
+
                 else -> {
                     result.notImplemented()
                 }
@@ -50,7 +89,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun getInstalledApps(): List<Map<String, Any>> {
+// GET INSTALLED APPS
+
+    private fun getInstalledApps():
+        List<Map<String, Any>> {
 
         val packageManager = packageManager
 
@@ -58,7 +100,9 @@ class MainActivity : FlutterActivity() {
             Intent.ACTION_MAIN,
             null
         ).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
+            addCategory(
+                Intent.CATEGORY_LAUNCHER
+            )
         }
 
         val activities =
@@ -78,18 +122,27 @@ class MainActivity : FlutterActivity() {
                     activityInfo.packageName
 
                 // Don't show VISKEY itself.
-                if (packageName == packageName()) {
+                if (
+                    packageName ==
+                    applicationContext.packageName
+                ) {
                     return@mapNotNull null
                 }
 
                 val appName =
-                    activityInfo.applicationInfo
-                        .loadLabel(packageManager)
+                    activityInfo
+                        .applicationInfo
+                        .loadLabel(
+                            packageManager
+                        )
                         .toString()
 
                 val icon =
-                    activityInfo.applicationInfo
-                        .loadIcon(packageManager)
+                    activityInfo
+                        .applicationInfo
+                        .loadIcon(
+                            packageManager
+                        )
 
                 mapOf(
                     "name" to appName,
@@ -107,9 +160,7 @@ class MainActivity : FlutterActivity() {
             }
     }
 
-    private fun packageName(): String {
-        return applicationContext.packageName
-    }
+    // CONVERT ICON → BASE64
 
     private fun drawableToBase64(
         drawable: Drawable
